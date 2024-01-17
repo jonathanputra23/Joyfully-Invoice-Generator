@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>Invoice Generator</title>
+</head>
+<body>
+    <h1>Invoice Generator</h1>
+    <form action="/generate_invoice" method="post">
+        <label for="client_name">Client Name:</label>
+        <input type="text" id="client_name" name="client_name" required>
+        <br>
+        <!-- Add the following div inside the form in index.html -->
+        <div id="item-container">
+            <div class="item">
+                <label for="item">Item:</label>
+                <input type="text" name="item[]" required>
+                <label for="quantity">Quantity:</label>
+                <input type="text" name="quantity[]" required>
+                <label for="price">Price:</label>
+                <input type="text" name="price[]" required>
+                <label for="subtotal">Subtotal:</label>
+                <input type="text" name="subtotal[]" readonly>
+                <button type="button" class="remove-item">Remove</button>
+            </div>
+        </div>
+
+<button type="button" id="add-item">Add Item</button>
+
+
+        <button type="submit">Generate Invoice</button>
+    </form>
+</body>
+<script>
+    $(document).ready(function() {
+        // Function to calculate subtotal based on quantity and price
+        function calculateSubtotal(item) {
+            var quantity = parseInt(item.find('[name="quantity[]"]').val()) || 0;
+            var price = parseFloat(item.find('[name="price[]"]').val()) || 0;
+            var subtotal = quantity * price;
+            item.find('[name="subtotal[]"]').val(subtotal.toFixed(2));
+        }
+
+        // Event listener for calculating subtotal on input change
+        $('#item-container').on('input', 'input[name^="quantity[]"], input[name^="price[]"]', function() {
+            var item = $(this).closest('.item');
+            calculateSubtotal(item);
+        });
+
+        // Event listener for adding a new item form
+        $('#add-item').click(function() {
+            var newItem = $('#item-container .item:first').clone();
+            newItem.find('input').val('');
+            newItem.find('[name="subtotal[]"]').val('');  // Reset subtotal
+            newItem.appendTo('#item-container');
+        });
+
+        // Event listener for removing an item form
+        $('#item-container').on('click', '.remove-item', function() {
+            if ($('#item-container .item').length > 1) {
+                $(this).closest('.item').remove();
+            }
+        });
+    });
+</script>
+</html>
